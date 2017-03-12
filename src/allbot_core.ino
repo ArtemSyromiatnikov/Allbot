@@ -14,6 +14,11 @@ enum MotorName {
     kneeRearRight
 };
 
+byte buzzerPin = 13;
+
+byte DEFAULT_HIP_POS = 45;
+byte DEFAULT_KNEE_POS = 45;
+
 // Positions for 'leaning' action.
 // Note: 'Forward' and 'Backward' indicate direciton of movement, not sides of the BOT
 enum Lean {
@@ -22,10 +27,7 @@ enum Lean {
     LEAN_KNEES_FORWARD = 30,
     LEAN_KNEES_BACKWARD = 75
 };
-// LEAN_HIPS_FORWARD = 75,
-// LEAN_HIPS_BACKWARD = 30,
-// LEAN_KNEES_FORWARD = 30,
-// LEAN_KNEES_BACKWARD = 80
+
 enum LeanSide {
     LEAN_HIPS_SIDE_FORWARD = 30,
     LEAN_HIPS_SIDE_BACKWARD = 55,
@@ -39,13 +41,16 @@ enum Directions {
     DIR_LEFT,
     DIR_RIGHT,
 };
+enum DirectionsDiagonal {
+    DIR_DIAG_NW, // North-West
+    DIR_DIAG_SW, // South-West
+    DIR_DIAG_SE, // South-East
+    DIR_DIAG_NE, // North-East
+};
 
-byte buzzerPin = 13;
 
-byte DEFAULT_HIP_POS = 45;
-byte DEFAULT_KNEE_POS = 45;
 
-int speedms = 100;
+int speedms = 200;
 
 void setup() {
     // BOT.attach(motorname, pin, init-angle, flipped, offset-angle);
@@ -67,19 +72,131 @@ void setup() {
     beep(1, 255);
     beep(3, 0);
 
+    randomSeed(analogRead(A0));
 }
 
 void loop() {
-    // lean(DIR_FORWARD);
-    // lean(DIR_LEFT);
-    // lean(DIR_BACKWARD);
-    // lean(DIR_RIGHT);
+    int action = random(0, 7);
+    int iterations = random(2, 6);
+    switch (action) {
+        case 0:
+            lean(DIR_FORWARD);
+            break;
+        case 1:
+            lean(DIR_LEFT);
+            break;
+        case 2:
+            lean(DIR_BACKWARD);
+            break;
+        case 3:
+            lean(DIR_RIGHT);
+            break;
+        case 4:
+            puhsUps(iterations);
+            break;
+        case 5:
+            hoolaHoop(iterations);
+            break;
+        case 6:
+            waveFrontLeft(iterations);
+            break;
+        case 7:
+            knockFrontLeft(iterations);
+            break;
 
-    //puhsUps(3);
+    }
 
-    hoolaHoop(5);
-    delay(5000);
+    delay(3000);
 }
+
+
+// Make the bot rise after activation
+void rise() {
+    int speed = 500;
+    delay(speed);
+
+    BOT.move(hipFrontLeft,  DEFAULT_HIP_POS);
+    BOT.move(hipFrontRight, DEFAULT_HIP_POS);
+    BOT.move(hipRearLeft,   DEFAULT_HIP_POS);
+    BOT.move(hipRearRight,  DEFAULT_HIP_POS);
+    BOT.animate(speed);
+
+    delay(speed);
+
+    BOT.move(kneeFrontLeft,  DEFAULT_KNEE_POS);
+    BOT.move(kneeFrontRight, DEFAULT_KNEE_POS);
+    BOT.move(kneeRearLeft,   DEFAULT_KNEE_POS);
+    BOT.move(kneeRearRight,  DEFAULT_KNEE_POS);
+    BOT.animate(speed);
+}
+
+// void wave(DirectionsDiagonal dir) {
+//     switch (dir) {
+//         case DIR_DIAG_NW:
+//             waveFrontLeft();
+//             break;
+//         case DIR_DIAG_SW:
+//             break;
+//         case DIR_DIAG_SE:
+//             break;
+//         case DIR_DIAG_SW:
+//             break;
+//     }
+//     BOT.animate(speedms);
+// }
+void waveFrontLeft(byte iterations) {
+    // Stabilize on 3 legs
+    BOT.move(hipFrontRight, 20);
+    BOT.move(hipRearLeft, 70);
+    BOT.move(kneeRearRight, 60);
+    BOT.animate(speedms);
+
+    BOT.move(kneeFrontLeft, 175);
+    BOT.animate(speedms);
+
+    delay(speedms);
+
+    for (byte i=0; i<iterations; i++) {
+        BOT.move(hipFrontLeft, 10);
+        BOT.animate(speedms*2/3);
+        BOT.move(hipFrontLeft, 60);
+        BOT.animate(speedms*2/3);
+    }
+
+    BOT.move(hipFrontLeft, DEFAULT_HIP_POS);
+    BOT.animate(speedms/2);
+
+    BOT.move(kneeFrontLeft, DEFAULT_KNEE_POS);
+    BOT.animate(speedms);
+
+    // Return to stable 4-leg position
+    BOT.move(hipFrontRight, DEFAULT_HIP_POS);
+    BOT.move(hipRearLeft, DEFAULT_HIP_POS);
+    BOT.move(kneeRearRight, DEFAULT_KNEE_POS);
+    BOT.animate(speedms);
+}
+
+void knockFrontLeft(byte iterations) {
+    // Stabilize on 3 legs
+    BOT.move(hipFrontRight, 20);
+    BOT.move(hipRearLeft, 70);
+    BOT.move(kneeRearRight, 60);
+    BOT.animate(speedms);
+
+    for (byte i=0; i<iterations; i++) {
+        BOT.move(kneeFrontLeft, 80);
+        BOT.animate(speedms);
+        BOT.move(kneeFrontLeft, 35);
+        BOT.animate(speedms);
+    }
+
+    // Return to stable 4-leg position
+    BOT.move(hipFrontRight, DEFAULT_HIP_POS);
+    BOT.move(hipRearLeft, DEFAULT_HIP_POS);
+    BOT.move(kneeRearRight, DEFAULT_KNEE_POS);
+    BOT.animate(speedms);
+}
+
 
 void lean(Directions dir) {
     switch (dir) {
@@ -115,10 +232,10 @@ void puhsUps(byte count) {
     for (int i=0; i<count; i++) {
         BOT.move(kneeFrontLeft, 15);
         BOT.move(kneeFrontRight, 15);
-        BOT.animate(speedms/2);
+        BOT.animate(speedms);
         BOT.move(kneeFrontLeft, 30);
         BOT.move(kneeFrontRight, 30);
-        BOT.animate(speedms/2);
+        BOT.animate(speedms);
     }
     delay(speedms);
 
@@ -140,27 +257,6 @@ void hoolaHoop(byte iterations) {
     setDefaultPos();
     BOT.animate(speedms);
 }
-
-// Make the bot rise after activation
-void rise() {
-    int speed = 500;
-    delay(speed);
-
-    BOT.move(hipFrontLeft,  DEFAULT_HIP_POS);
-    BOT.move(hipFrontRight, DEFAULT_HIP_POS);
-    BOT.move(hipRearLeft,   DEFAULT_HIP_POS);
-    BOT.move(hipRearRight,  DEFAULT_HIP_POS);
-    BOT.animate(speed);
-
-    delay(speed);
-
-    BOT.move(kneeFrontLeft,  DEFAULT_KNEE_POS);
-    BOT.move(kneeFrontRight, DEFAULT_KNEE_POS);
-    BOT.move(kneeRearLeft,   DEFAULT_KNEE_POS);
-    BOT.move(kneeRearRight,  DEFAULT_KNEE_POS);
-    BOT.animate(speed);
-}
-
 
 // Moves all servos to 'leanForward' configuration. No .animate()
 void setLeanForwardPos() {
