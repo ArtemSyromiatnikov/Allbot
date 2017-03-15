@@ -50,7 +50,7 @@ enum DirectionsDiagonal {
 
 
 
-int speedms = 200;
+int speedms = 150;
 
 void setup() {
     // BOT.attach(motorname, pin, init-angle, flipped, offset-angle);
@@ -76,7 +76,7 @@ void setup() {
 }
 
 void loop() {
-    int action = random(0, 7);
+    int action = random(0, 9);
     int iterations = random(2, 6);
     switch (action) {
         case 0:
@@ -92,21 +92,25 @@ void loop() {
             lean(DIR_RIGHT);
             break;
         case 4:
-            puhsUps(iterations);
-            break;
         case 5:
             hoolaHoop(iterations);
             break;
         case 6:
+        case 7:
             waveFrontLeft(iterations);
             break;
-        case 7:
+        case 8:
+        case 9:
             knockFrontLeft(iterations);
             break;
-
+        // case 4:
+        //     puhsUps(iterations);
+        //     break;
+        default:
+            break;
     }
 
-    delay(3000);
+    delay(2000);
 }
 
 
@@ -185,9 +189,9 @@ void knockFrontLeft(byte iterations) {
 
     for (byte i=0; i<iterations; i++) {
         BOT.move(kneeFrontLeft, 80);
-        BOT.animate(speedms);
+        BOT.animate(100);
         BOT.move(kneeFrontLeft, 35);
-        BOT.animate(speedms);
+        BOT.animate(100);
     }
 
     // Return to stable 4-leg position
