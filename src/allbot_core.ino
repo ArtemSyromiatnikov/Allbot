@@ -50,9 +50,11 @@ enum DirectionsDiagonal {
 
 
 
-int speedms = 150;
+int speedms = 100;
 
 void setup() {
+    Serial.begin(9600);
+
     // BOT.attach(motorname, pin, init-angle, flipped, offset-angle);
     BOT.attach(hipFrontLeft,   11,  90, 0, 0);
     BOT.attach(hipFrontRight,   2,  90, 1, 0);
@@ -76,7 +78,65 @@ void setup() {
 }
 
 void loop() {
-    int action = random(0, 9);
+    //listenToSerial();
+
+    //int action = random(0, 9);
+    //executeCommand(action);
+
+    walk();
+}
+
+// allows to manipulate separate servos through Serial Bus
+void listenToSerial() {
+
+    if (Serial.available()) {
+        String input = Serial.readString();
+        // byte start = input.indexOf('[');
+        // byte end = input.indexOf(']');
+        // if (start < 0 || end < 0 || start>=end) {
+        //     Serial.println("Invalid command");
+        //     return;
+        // }
+        //input = input.substring(start+1, end);
+        //Serial.println("Command: " + input);
+
+        String command = input.substring(0, 3);
+        command.toUpperCase();
+        MotorName motor = getMotorByName(command);
+
+        int angle = input.substring(4).toInt();
+        angle = constrain(angle, 0, 180);
+
+        Serial.println("Servo: " + command + ", angle: " + angle);
+
+        // execute
+        BOT.move(motor, angle);
+        BOT.animate(speedms);
+    }
+}
+
+MotorName getMotorByName(String motorName) {
+    if (motorName == "HFR")
+        return hipFrontRight;
+    if (motorName == "HFL")
+        return hipFrontLeft;
+    if (motorName == "HRR")
+        return hipRearRight;
+    if (motorName == "HRL")
+        return hipRearLeft;
+    if (motorName == "KFR")
+        return kneeFrontRight;
+    if (motorName == "KFL")
+        return kneeFrontLeft;
+    if (motorName == "KRR")
+        return kneeRearRight;
+    if (motorName == "KRL")
+        return kneeRearLeft;
+    // Should never happen
+    return hipFrontLeft;
+}
+
+void executeCommand(int action) {
     int iterations = random(2, 6);
     switch (action) {
         case 0:
@@ -92,27 +152,20 @@ void loop() {
             lean(DIR_RIGHT);
             break;
         case 4:
-        case 5:
             hoolaHoop(iterations);
             break;
-        case 6:
-        case 7:
+        case 5:
             waveFrontLeft(iterations);
             break;
-        case 8:
-        case 9:
+        case 6:
             knockFrontLeft(iterations);
             break;
-        // case 4:
-        //     puhsUps(iterations);
-        //     break;
         default:
             break;
     }
 
     delay(2000);
 }
-
 
 // Make the bot rise after activation
 void rise() {
@@ -134,20 +187,66 @@ void rise() {
     BOT.animate(speed);
 }
 
-// void wave(DirectionsDiagonal dir) {
-//     switch (dir) {
-//         case DIR_DIAG_NW:
-//             waveFrontLeft();
-//             break;
-//         case DIR_DIAG_SW:
-//             break;
-//         case DIR_DIAG_SE:
-//             break;
-//         case DIR_DIAG_SW:
-//             break;
-//     }
-//     BOT.animate(speedms);
-// }
+void walk() {
+    int angleKneeUp = 70;
+
+// reset
+    setDefaultPos();
+    BOT.animate(speedms);
+
+
+    while(true) {
+    // step left
+
+        // move front leg
+        moveOne(kneeFrontRight, angleKneeUp);
+        moveOne(hipFrontRight,  30);
+        moveOne(kneeFrontRight, DEFAULT_KNEE_POS);
+
+        // move rear leg
+        moveOne(kneeRearLeft, angleKneeUp);
+        moveOne(hipRearLeft,  60);
+        moveOne(kneeRearLeft, DEFAULT_KNEE_POS);
+
+        BOT.move(kneeFrontLeft, 25);
+        BOT.move(kneeRearRight, 60);
+        BOT.move(kneeFrontRight, 45);
+        BOT.move(kneeRearLeft, 45);
+        BOT.move(hipFrontLeft, 45);
+        BOT.move(hipRearLeft, 45);
+        BOT.move(hipFrontRight, 45);
+        BOT.move(hipRearRight, 45);
+        BOT.animate(speedms);
+        //delay(200);
+
+
+    // step right
+        // move front leg
+        moveOne(kneeFrontLeft, angleKneeUp);
+        moveOne(hipFrontLeft,  30);
+        moveOne(kneeFrontLeft, DEFAULT_KNEE_POS);
+
+        // move rear leg
+        moveOne(kneeRearRight, angleKneeUp);
+        moveOne(hipRearRight,  60);
+        moveOne(kneeRearRight, DEFAULT_KNEE_POS);
+
+        BOT.move(kneeFrontRight, 25);
+        BOT.move(kneeRearLeft, 60);
+        BOT.move(kneeFrontLeft, 45);
+        BOT.move(kneeRearRight, 45);
+        BOT.move(hipFrontLeft, 45);
+        BOT.move(hipRearLeft, 45);
+        BOT.move(hipFrontRight, 45);
+        BOT.move(hipRearRight, 45);
+        BOT.animate(speedms);
+        //delay(200);
+    }
+
+
+    delay(60000);
+}
+
 void waveFrontLeft(byte iterations) {
     // Stabilize on 3 legs
     BOT.move(hipFrontRight, 20);
@@ -228,24 +327,24 @@ void lean(Directions dir) {
     BOT.animate(speedms);
 }
 
-void puhsUps(byte count) {
-    setLeanForwardPos();
-    BOT.animate(speedms);
-    delay(speedms);
-
-    for (int i=0; i<count; i++) {
-        BOT.move(kneeFrontLeft, 15);
-        BOT.move(kneeFrontRight, 15);
-        BOT.animate(speedms);
-        BOT.move(kneeFrontLeft, 30);
-        BOT.move(kneeFrontRight, 30);
-        BOT.animate(speedms);
-    }
-    delay(speedms);
-
-    setDefaultPos();
-    BOT.animate(speedms);
-}
+// void puhsUps(byte count) {
+//     setLeanForwardPos();
+//     BOT.animate(speedms);
+//     delay(speedms);
+//
+//     for (int i=0; i<count; i++) {
+//         BOT.move(kneeFrontLeft, 15);
+//         BOT.move(kneeFrontRight, 15);
+//         BOT.animate(speedms);
+//         BOT.move(kneeFrontLeft, 30);
+//         BOT.move(kneeFrontRight, 30);
+//         BOT.animate(speedms);
+//     }
+//     delay(speedms);
+//
+//     setDefaultPos();
+//     BOT.animate(speedms);
+// }
 
 void hoolaHoop(byte iterations) {
     for (byte i=0; i<iterations; i++) {
@@ -331,4 +430,10 @@ void beep(int beeps, int speedms){
         }
         delay(30);
     }
+}
+
+void moveOne(int servo, int angle) {
+    BOT.move(servo, angle);
+    BOT.animate(speedms);
+    //delay(speedms);
 }
