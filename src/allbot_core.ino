@@ -50,7 +50,7 @@ enum DirectionsDiagonal {
 
 
 
-int speedms = 100;
+int speedms = 250;
 
 void setup() {
     Serial.begin(9600);
@@ -189,6 +189,7 @@ void rise() {
 
 void walk() {
     int angleKneeUp = 70;
+    int angleKneeCarry = 45;    // 40? 50?
 
 // reset
     setDefaultPos();
@@ -196,51 +197,65 @@ void walk() {
 
 
     while(true) {
-    // step left
 
+    // step left
         // move front leg
-        moveOne(kneeFrontRight, angleKneeUp);
-        moveOne(hipFrontRight,  30);
-        moveOne(kneeFrontRight, DEFAULT_KNEE_POS);
+        BOT.move(kneeFrontRight, angleKneeUp);
+        BOT.animate(speedms);
+        BOT.move(hipFrontRight,  30);
+        BOT.animate(speedms);
+        BOT.move(kneeFrontRight, DEFAULT_KNEE_POS);
+        BOT.animate(speedms);
 
         // move rear leg
-        moveOne(kneeRearLeft, angleKneeUp);
-        moveOne(hipRearLeft,  60);
-        moveOne(kneeRearLeft, DEFAULT_KNEE_POS);
-
-        BOT.move(kneeFrontLeft, 25);
-        BOT.move(kneeRearRight, 60);
-        BOT.move(kneeFrontRight, 45);
-        BOT.move(kneeRearLeft, 45);
-        BOT.move(hipFrontLeft, 45);
-        BOT.move(hipRearLeft, 45);
-        BOT.move(hipFrontRight, 45);
-        BOT.move(hipRearRight, 45);
+        BOT.move(kneeRearLeft, angleKneeUp);
         BOT.animate(speedms);
-        //delay(200);
+        BOT.move(hipRearLeft,  60);
+        BOT.animate(speedms);
+        BOT.move(kneeRearLeft, DEFAULT_KNEE_POS);
+        BOT.animate(speedms);
+
+        BOT.move(kneeFrontLeft,  25); // move direction
+        BOT.move(kneeRearLeft,   45);
+        BOT.move(kneeRearRight,  60); // rear leg
+        BOT.move(kneeFrontRight, 45);
+
+        BOT.move(hipFrontLeft,  45);
+        BOT.move(hipRearLeft,   45);  // weight is here
+        BOT.move(hipRearRight,  45);
+        BOT.move(hipFrontRight, 45);  // weight is here
+        BOT.animate(speedms);
+        delay(500);
 
 
     // step right
         // move front leg
-        moveOne(kneeFrontLeft, angleKneeUp);
-        moveOne(hipFrontLeft,  30);
-        moveOne(kneeFrontLeft, DEFAULT_KNEE_POS);
+        BOT.move(kneeFrontLeft, angleKneeUp);
+        BOT.animate(speedms);
+        BOT.move(hipFrontLeft,  30);
+        BOT.animate(speedms);
+        BOT.move(kneeFrontLeft, DEFAULT_KNEE_POS);
+        BOT.animate(speedms);
 
         // move rear leg
-        moveOne(kneeRearRight, angleKneeUp);
-        moveOne(hipRearRight,  60);
-        moveOne(kneeRearRight, DEFAULT_KNEE_POS);
-
-        BOT.move(kneeFrontRight, 25);
-        BOT.move(kneeRearLeft, 60);
-        BOT.move(kneeFrontLeft, 45);
-        BOT.move(kneeRearRight, 45);
-        BOT.move(hipFrontLeft, 45);
-        BOT.move(hipRearLeft, 45);
-        BOT.move(hipFrontRight, 45);
-        BOT.move(hipRearRight, 45);
+        BOT.move(kneeRearRight, angleKneeUp);
         BOT.animate(speedms);
-        //delay(200);
+        BOT.move(hipRearRight,  60);
+        BOT.animate(speedms);
+        BOT.move(kneeRearRight, DEFAULT_KNEE_POS);
+        BOT.animate(speedms);
+
+        BOT.move(kneeFrontLeft,  45);
+        BOT.move(kneeRearLeft,   60); // rear leg
+        BOT.move(kneeRearRight,  45);
+        BOT.move(kneeFrontRight, 25); // move direction
+
+        BOT.move(hipFrontLeft,  45);  // weight is here
+        BOT.move(hipRearLeft,   45);
+        BOT.move(hipRearRight,  45);  // weight is here
+        BOT.move(hipFrontRight, 45);
+        BOT.animate(speedms);
+        delay(500);
     }
 
 
@@ -432,8 +447,8 @@ void beep(int beeps, int speedms){
     }
 }
 
-void moveOne(int servo, int angle) {
-    BOT.move(servo, angle);
-    BOT.animate(speedms);
-    //delay(speedms);
-}
+// void moveOne(int servo, int angle) {
+//     BOT.move(servo, angle);
+//     BOT.animate(speedms);
+//     delay(speedms);
+// }
