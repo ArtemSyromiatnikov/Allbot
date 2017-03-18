@@ -16,6 +16,8 @@ enum MotorName {
 
 byte buzzerPin = 13;
 
+int speedms = 100;
+
 byte DEFAULT_HIP_POS = 45;
 byte DEFAULT_KNEE_POS = 45;
 
@@ -47,10 +49,6 @@ enum DirectionsDiagonal {
     DIR_DIAG_SE, // South-East
     DIR_DIAG_NE, // North-East
 };
-
-
-
-int speedms = 250;
 
 void setup() {
     Serial.begin(9600);
@@ -198,22 +196,27 @@ void walk() {
 
     while(true) {
 
+    // step model old: knee up, hip forward, knee down
+    // step model new: knee up +  1/2 hip forward, knee down +  1/2 hip forward
+
+
     // step left
         // move rear leg
+        // 45 -> 52 -> 60
         BOT.move(kneeRearLeft, angleKneeUp);
-        //BOT.animate(speedms);
-        BOT.move(hipRearLeft,  60);
-        BOT.move(kneeFrontRight, DEFAULT_KNEE_POS);// normalize front leg
+        BOT.move(hipRearLeft,  52);
         BOT.animate(speedms);
         BOT.move(kneeRearLeft, DEFAULT_KNEE_POS);
+        BOT.move(hipRearLeft,  60);
         //BOT.animate(speedms);
 
         // move front leg
+        // 45 -> 38 -> 30
         BOT.move(kneeFrontRight, angleKneeUp);
-        //BOT.animate(speedms);
-        BOT.move(hipFrontRight,  30);
+        BOT.move(hipFrontRight,  38);
         BOT.animate(speedms);
         BOT.move(kneeFrontRight, DEFAULT_KNEE_POS);
+        BOT.move(hipFrontRight,  30);
         BOT.animate(speedms);
 
         BOT.move(kneeFrontLeft,  25); // move direction
@@ -226,25 +229,24 @@ void walk() {
         BOT.move(hipRearRight,  45);
         BOT.move(hipFrontRight, 45);  // weight is here (40?)
         BOT.animate(speedms);
-        delay(500);
+        //delay(500);
 
 
     // step right
         // move rear leg
         BOT.move(kneeRearRight, angleKneeUp);
-        //BOT.animate(speedms);
-        BOT.move(hipRearRight,  60);
-        BOT.move(kneeFrontLeft, DEFAULT_KNEE_POS);// normalize front leg
+        BOT.move(hipRearRight,  52);
         BOT.animate(speedms);
         BOT.move(kneeRearRight, DEFAULT_KNEE_POS);
-//        BOT.animate(speedms);
+        BOT.move(hipRearRight,  60);
+        //BOT.animate(speedms);
 
         // move front leg
         BOT.move(kneeFrontLeft, angleKneeUp);
-        //BOT.animate(speedms);
-        BOT.move(hipFrontLeft,  30);
+        BOT.move(hipFrontLeft,  38);
         BOT.animate(speedms);
         BOT.move(kneeFrontLeft, DEFAULT_KNEE_POS);
+        BOT.move(hipFrontLeft,  30);
         BOT.animate(speedms);
 
         BOT.move(kneeFrontLeft,  45);
@@ -257,7 +259,7 @@ void walk() {
         BOT.move(hipRearRight,  45);  // weight is here (50?)
         BOT.move(hipFrontRight, 45);
         BOT.animate(speedms);
-        delay(500);
+        //delay(500);
     }
 
 
